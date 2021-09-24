@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>52.0</apiVersion>
+    <assignments>
+        <description>For each content version record store the content document id which eventually is a collection.</description>
+        <name>Assign_Content_Document_Id</name>
+        <label>Assign Content Document Id</label>
+        <locationX>727</locationX>
+        <locationY>174</locationY>
+        <assignmentItems>
+            <assignToReference>contentDocumentIdCollection</assignToReference>
+            <operator>Add</operator>
+            <value>
+                <elementReference>Get_Content_Version_Records.ContentDocumentId</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Loop_Content_Version_Ids</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <description>Single record of CDL is instantiated here.</description>
+        <name>Assign_Content_Document_Link_Record</name>
+        <label>Assign Content Document Link Record</label>
+        <locationX>591</locationX>
+        <locationY>564</locationY>
+        <assignmentItems>
+            <assignToReference>contentDocumentLinkRecord.LinkedEntityId</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>recordIdInput</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>contentDocumentLinkRecord.ContentDocumentId</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>Loop_Content_Document_Ids</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>contentDocumentLinkRecord.Visibility</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>AllUsers</stringValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Create_CDL_List</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <description>In the previous step the CDL record is created, now add it to a list.</description>
+        <name>Create_CDL_List</name>
+        <label>Create CDL List</label>
+        <locationX>743</locationX>
+        <locationY>495</locationY>
+        <assignmentItems>
+            <assignToReference>contentDocumentLinkRecordCollection</assignToReference>
+            <operator>Add</operator>
+            <value>
+                <elementReference>contentDocumentLinkRecord</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Loop_Content_Document_Ids</targetReference>
+        </connector>
+    </assignments>
+    <description>This is a sub flow which will be called from main flow to feed in content version id and object record id. It will first query the content version object. Then it will create content document link records.</description>
+    <interviewLabel>Attach Files {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>Attach Files</label>
+    <loops>
+        <description>Loop through the content document id collection to start the process of getting ready for content document link records.</description>
+        <name>Loop_Content_Document_Ids</name>
+        <label>Loop Content Document Ids</label>
+        <locationX>389</locationX>
+        <locationY>495</locationY>
+        <collectionReference>contentDocumentIdCollection</collectionReference>
+        <iterationOrder>Asc</iterationOrder>
+        <nextValueConnector>
+            <targetReference>Assign_Content_Document_Link_Record</targetReference>
+        </nextValueConnector>
+        <noMoreValuesConnector>
+            <targetReference>Insert_Content_Document_Link_Records</targetReference>
+        </noMoreValuesConnector>
+    </loops>
+    <loops>
+        <description>Loop through the content version ids received as input.</description>
+        <name>Loop_Content_Version_Ids</name>
+        <label>Loop Content Version Ids</label>
+        <locationX>390</locationX>
+        <locationY>174</locationY>
+        <collectionReference>contentVersionIdInputCollection</collectionReference>
+        <iterationOrder>Asc</iterationOrder>
+        <nextValueConnector>
+            <targetReference>Get_Content_Version_Records</targetReference>
+        </nextValueConnector>
+        <noMoreValuesConnector>
+            <targetReference>Loop_Content_Document_Ids</targetReference>
+        </noMoreValuesConnector>
+    </loops>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>FREE_FORM_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <recordCreates>
+        <description>This is the final CDL record collection which will be inserted.</description>
+        <name>Insert_Content_Document_Link_Records</name>
+        <label>Insert Content Document Link Records</label>
+        <locationX>189</locationX>
+        <locationY>498</locationY>
+        <inputReference>contentDocumentLinkRecordCollection</inputReference>
+    </recordCreates>
+    <recordLookups>
+        <description>Query Content Version to get and store the Content Document Id in a variable.</description>
+        <name>Get_Content_Version_Records</name>
+        <label>Get Content Version Records</label>
+        <locationX>586</locationX>
+        <locationY>254</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Assign_Content_Document_Id</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Id</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>Loop_Content_Version_Ids</elementReference>
+            </value>
+        </filters>
+        <getFirstRecordOnly>true</getFirstRecordOnly>
+        <object>ContentVersion</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
+    <runInMode>SystemModeWithoutSharing</runInMode>
+    <start>
+        <locationX>50</locationX>
+        <locationY>50</locationY>
+        <connector>
+            <targetReference>Loop_Content_Version_Ids</targetReference>
+        </connector>
+    </start>
+    <status>Active</status>
+    <variables>
+        <description>This is variable which will store all the ContentDocumentId fetched from Content Version object.</description>
+        <name>contentDocumentIdCollection</name>
+        <dataType>String</dataType>
+        <isCollection>true</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+    <variables>
+        <description>Variables 1) LinkedEntityId and 2) ContentDocumentId will be inserted as a record variable which then will be pushed to a CDL list.</description>
+        <name>contentDocumentLinkRecord</name>
+        <dataType>SObject</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <objectType>ContentDocumentLink</objectType>
+    </variables>
+    <variables>
+        <description>This is a record collection for ContentDocumentLink. This collection will be responsible to create the CDL records. This will be built in the loop iteration.</description>
+        <name>contentDocumentLinkRecordCollection</name>
+        <dataType>SObject</dataType>
+        <isCollection>true</isCollection>
+        <isInput>true</isInput>
+        <isOutput>true</isOutput>
+        <objectType>ContentDocumentLink</objectType>
+    </variables>
+    <variables>
+        <description>This is a collection variable which will receive value from the main flow which will call the sub flow. This is 1 of 2 input variable.</description>
+        <name>contentVersionIdInputCollection</name>
+        <dataType>String</dataType>
+        <isCollection>true</isCollection>
+        <isInput>true</isInput>
+        <isOutput>true</isOutput>
+    </variables>
+    <variables>
+        <description>This variable is an input variable which will be received from the main flow. This is the record id which will have all the files.</description>
+        <name>recordIdInput</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>true</isInput>
+        <isOutput>true</isOutput>
+    </variables>
+</Flow>
