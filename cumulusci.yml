@@ -1,25 +1,26 @@
-minimum_cumulusci_version: '3.44.1'
+minimum_cumulusci_version: "3.44.1"
 project:
+  name: File-Uploader
+  package:
     name: File-Uploader
-    package:
-        name: File-Uploader
-        api_version: '52.0'
-    git:
-        default_branch: 'main'
-    source_format: sfdx
+    api_version: "52.0"
+    namespace: crmUtils
+  git:
+    default_branch: "main"
+  source_format: sfdx
 
 tasks:
-    robot:
-        options:
-            suites: robot/File-Uploader/tests
-            options:
-                outputdir: robot/File-Uploader/results
+  robot:
+    options:
+      suites: robot/File-Uploader/tests
+      options:
+        outputdir: robot/File-Uploader/results
 
-    robot_testdoc:
-        options:
-            path: robot/File-Uploader/tests
-            output: robot/File-Uploader/doc/File-Uploader_tests.html
+  robot_testdoc:
+    options:
+      path: robot/File-Uploader/tests
+      output: robot/File-Uploader/doc/File-Uploader_tests.html
 
-    run_tests:
-        options:
-            required_org_code_coverage_percent: 90
+  run_tests:
+    options:
+      required_org_code_coverage_percent: 90
