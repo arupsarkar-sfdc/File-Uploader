@@ -4,6 +4,9 @@
 /src.orig
 /src
 
+# Ignore local dev server
+.localdevserver/
+
 # Python
 *.pyc
 __pycache__

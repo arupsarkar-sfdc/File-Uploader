@@ -1,0 +1,47 @@
+<template>
+    <lightning-card
+        variant="narrow"
+        icon-name="action:add_file"
+    >
+    <h1 slot="title">{bannerText}</h1>
+    <template if:true={showSpinner}>
+        <lightning-spinner alternative-text="Loading" size="small" variant="brand"></lightning-spinner>
+    </template>    
+
+        <!-- <lightning-layout>
+            <lightning-layout-item padding="around-small">
+                <p> Record Id: {_objectId}</p>
+            </lightning-layout-item>
+            <lightning-layout-item padding="around-small">
+                <template if:true={_recordIds}>
+                    <template for:each={_recordIds} for:item="recordId">
+                        <p key={recordId}>{recordId}</p>
+                    </template>
+                </template>
+
+            </lightning-layout-item>
+                        
+        </lightning-layout> -->
+        <div class="slds-var-p-around_small">
+            <lightning-datatable
+                key-field="id"
+                data={data}
+                hide-checkbox-column
+                columns={columns}
+                onrowaction={handleRowAction}>
+            </lightning-datatable>
+        </div>        
+
+        <div slot="footer">
+            <lightning-layout>
+                <lightning-layout-item padding="around-small">
+                    <p>Built with</p>
+                </lightning-layout-item>
+                <lightning-layout-item>
+                    <lightning-icon icon-name="utility:lightning_extension"></lightning-icon>
+                </lightning-layout-item>                
+            </lightning-layout>
+        </div>    
+    </lightning-card>
+    
+</template>
