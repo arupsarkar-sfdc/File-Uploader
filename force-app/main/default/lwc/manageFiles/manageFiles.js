@@ -1,6 +1,7 @@
 import { LightningElement, api, track } from 'lwc';
 import getFiles from '@salesforce/apex/ManageFilesController.getFiles'
-
+import deleteFile from '@salesforce/apex/ManageFilesController.deleteFile'
+import { NavigationMixin } from 'lightning/navigation';
 
 const columns = [
     { label: 'Title',       fieldName: 'Title', wrapText : true,
@@ -31,7 +32,7 @@ const columns = [
     } 
 ];
 
-export default class ManageFiles extends LightningElement {
+export default class ManageFiles extends NavigationMixin(LightningElement) {
     @track _bannerText
     @track _recordIds = []
     @track _objectId
@@ -41,6 +42,7 @@ export default class ManageFiles extends LightningElement {
     showSpinner = false
     @api usedInCommunity;
     @track _communityName;
+    dbMessage
 
     @api
     get communityName() {
@@ -107,23 +109,88 @@ export default class ManageFiles extends LightningElement {
     
 
     handleRowAction(event){
-
+        event.preventDefault()
         const actionName = event.detail.action.name;
         const row = event.detail.row;
+        console.log('---> handle row action event - ', event)
+        console.log('---> handle row action name - ', actionName)
+        console.log('---> handle row action row - ', row)
         switch (actionName) {
             case 'Preview':
-                //this.previewFile(row);
+                this.previewFile(row);
                 break;
             case 'Download':
-                //this.downloadFile(row);
+                this.downloadFile(row);
                 break;
             case 'Delete':
-                //this.handleDeleteFiles(row);
+                this.deleteFile(row)
                 break;
             default:
         }
 
-    }    
+    }  
+
+    previewFile(row) {
+        console.log('---> preview file ', JSON.stringify(row))
+        console.log('---> used in community ', this.usedInCommunity)
+        let currentRow = JSON.parse(JSON.stringify(row))
+        console.log('---> preview content document id ', currentRow.ContentDocumentId)   
+        console.log('---> preview content file url ', currentRow.fileUrl)                        
+        if(!this.usedInCommunity){
+            this[NavigationMixin.Navigate]({
+                type: 'standard__namedPage',
+                attributes: {
+                    pageName: 'filePreview'
+                },
+                state : {
+                    selectedRecordId: currentRow.ContentDocumentId
+                }
+            });
+        } else if(this.usedInCommunity){
+            
+            this[NavigationMixin.Navigate]({
+                type: 'standard__webPage',
+                attributes: {
+                    url: currentRow.fileUrl
+                }
+            }, false );
+        }
+    }
+
+    downloadFile(row) {
+        console.log('---> download file ', JSON.stringify(row))
+        let currentRow = JSON.parse(JSON.stringify(row))
+        console.log('---> download content download url - ', currentRow.downloadUrl)        
+        this[NavigationMixin.Navigate]({
+            type: 'standard__webPage',
+            attributes: {
+                url: currentRow.downloadUrl
+            }
+        }, false);
+    }
+    
+    deleteFile(row) {
+        console.log('---> delete file ', JSON.stringify(row))
+        let currentRow = JSON.parse(JSON.stringify(row))
+        console.log('---> delete content document id ', currentRow.ContentDocumentId)
+        this.showSpinner = true
+        deleteFile({
+            recordId: currentRow.ContentDocumentId
+        })
+        .then(result => {
+            this.data  = this.data.filter(item => {
+                return item.ContentDocumentId !== currentRow.ContentDocumentId ;
+            });
+            this.dbMessage = result
+        })
+        .catch(error => {
+            console.error('**** error **** \n ',error)
+        })
+        .finally(() => {
+            this.showSpinner = false
+        })
+    }
+
     formatBytes(bytes,decimals) {
         if(bytes == 0) return '0 Bytes';
         var k = 1024,
@@ -146,8 +213,11 @@ export default class ManageFiles extends LightningElement {
             let baseUrl = this.getBaseUrl()
 
             finalData.forEach(file => {
+                file.downloadUrl = baseUrl+'sfc/servlet.shepherd/document/download/'+file.ContentDocumentId;
+                file.fileUrl     = baseUrl+'sfc/servlet.shepherd/version/renditionDownload?rendition=THUMB720BY480&versionId='+file.Id;
                 file.CREATED_BY  = file.ContentDocument.CreatedBy.Name;
                 file.Size        = this.formatBytes(file.ContentDocument.ContentSize, 2);
+                file.icon = 'doctype:attachment'
             })
 
             this.data = finalData

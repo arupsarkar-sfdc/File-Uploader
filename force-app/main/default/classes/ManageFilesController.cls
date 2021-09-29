@@ -27,5 +27,32 @@ public with sharing class ManageFilesController {
             //throw new AuraHandledException(e.getMessage());
         } 
 
-    }    
+    } 
+    
+    @AuraEnabled
+    public static String deleteFile(String recordId){
+        String result = '';
+        String error = '';
+        try {
+            Database.DeleteResult dr = Database.delete(recordId, false);
+
+
+                if(dr.isSuccess()) {
+                    result = 'Successfully delete record with ID : ' + dr.getId();
+                }else {
+                    // Operation failed, so get all errors                
+                    for(Database.Error err : dr.getErrors()) {
+                        System.debug('The following error has occurred.');                    
+                        System.debug(err.getStatusCode() + ': ' + err.getMessage());
+                        result = err.getStatusCode() + ': ' + err.getMessage() + ': ' + err.getFields();
+                    }                    
+                }
+
+            return result;
+        } catch (Exception e) {
+            error = e.getMessage();
+            return error;
+            //throw new AuraHandledException(e.getMessage());
+        }
+    }
 }

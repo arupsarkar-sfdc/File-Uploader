@@ -4,6 +4,9 @@
         icon-name="action:add_file"
     >
     <h1 slot="title">{bannerText}</h1>
+    <template if:true={showSpinner}>
+        <lightning-spinner alternative-text="Loading" size="small" variant="brand"></lightning-spinner>
+    </template>    
 
         <!-- <lightning-layout>
             <lightning-layout-item padding="around-small">
