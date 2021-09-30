@@ -1,4 +1,4 @@
-public with sharing class ManageFilesController {
+public without sharing class ManageFilesController {
 
 
 
