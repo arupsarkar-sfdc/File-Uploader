@@ -134,14 +134,12 @@ export default class ManageFiles extends NavigationMixin(LightningElement) {
     previewFile(row) {
 
         if(this._communityName) {
-            showToast() {
-                const event = new ShowToastEvent({
-                    title: 'Preview File - Help',
-                    message: 'If you cannot preview this file, check with the system administrator.',
-                });
-                this.dispatchEvent(event);
-            }
-            return
+            const event = new ShowToastEvent({
+                title: 'Preview File - Help',
+                message: 'If you cannot preview this file, check with the system administrator.',
+            });
+            this.dispatchEvent(event);
+
         }
 
         console.log('---> preview file ', JSON.stringify(row))
@@ -173,14 +171,11 @@ export default class ManageFiles extends NavigationMixin(LightningElement) {
     downloadFile(row) {
 
         if(this._communityName) {
-            showToast() {
-                const event = new ShowToastEvent({
-                    title: 'Download File - Help',
-                    message: 'If you cannot download this file, check with the system administrator.',
-                });
-                this.dispatchEvent(event);
-            }
-            return
+            const event = new ShowToastEvent({
+                title: 'Download File - Help',
+                message: 'If you cannot download this file, check with the system administrator.',
+            });
+            this.dispatchEvent(event);
         }
 
         console.log('---> download file ', JSON.stringify(row))
