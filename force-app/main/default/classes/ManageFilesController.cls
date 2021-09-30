@@ -6,11 +6,10 @@ public with sharing class ManageFilesController {
     public static String getFiles(List<Id> recordIds) {
         String result = '';
         String error = '';
-        try {
-            for(Id fileId : recordIds) {
-                System.debug(LoggingLevel.DEBUG, '---> file Id ' + fileId);
-            }
-            List<ContentVersion> contentVersions = [
+        for(Id fileId : recordIds) {
+            System.debug(LoggingLevel.DEBUG, '---> file Id ' + fileId);
+        }
+        List<ContentVersion> contentVersions = [
                                                         SELECT Id, FileType, Title, FileExtension,
                                                             ContentDocument.CreatedBy.Name, 
                                                             ContentDocument.ContentSize, CreatedDate, 
@@ -18,15 +17,8 @@ public with sharing class ManageFilesController {
                                                         FROM ContentVersion
                                                         WHERE Id IN :recordIds
                                                     ];
-            result = JSON.serialize(contentVersions);
-            return result;
-            
-        } catch (Exception e) {
-            error = e.getMessage();
-            return error;
-            //throw new AuraHandledException(e.getMessage());
-        } 
-
+        result = JSON.serialize(contentVersions);
+        return result;
     } 
     
     @AuraEnabled
