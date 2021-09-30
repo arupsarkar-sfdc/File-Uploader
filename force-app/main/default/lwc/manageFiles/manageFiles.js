@@ -2,6 +2,7 @@ import { LightningElement, api, track } from 'lwc';
 import getFiles from '@salesforce/apex/ManageFilesController.getFiles'
 import deleteFile from '@salesforce/apex/ManageFilesController.deleteFile'
 import { NavigationMixin } from 'lightning/navigation';
+import { ShowToastEvent } from 'lightning/platformShowToastEvent'
 
 const columns = [
     { label: 'Title',       fieldName: 'Title', wrapText : true,
@@ -131,6 +132,16 @@ export default class ManageFiles extends NavigationMixin(LightningElement) {
     }  
 
     previewFile(row) {
+
+        if(this._communityName) {
+            const event = new ShowToastEvent({
+                title: 'Preview File - Help',
+                message: 'If you cannot preview this file, check with the system administrator.',
+            });
+            this.dispatchEvent(event);
+
+        }
+
         console.log('---> preview file ', JSON.stringify(row))
         console.log('---> used in community ', this.usedInCommunity)
         let currentRow = JSON.parse(JSON.stringify(row))
@@ -158,6 +169,15 @@ export default class ManageFiles extends NavigationMixin(LightningElement) {
     }
 
     downloadFile(row) {
+
+        if(this._communityName) {
+            const event = new ShowToastEvent({
+                title: 'Download File - Help',
+                message: 'If you cannot download this file, check with the system administrator.',
+            });
+            this.dispatchEvent(event);
+        }
+
         console.log('---> download file ', JSON.stringify(row))
         let currentRow = JSON.parse(JSON.stringify(row))
         console.log('---> download content download url - ', currentRow.downloadUrl)        
